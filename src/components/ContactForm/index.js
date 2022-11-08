@@ -1,6 +1,9 @@
 import PropTypes from 'prop-types';
-
 import { useState } from 'react';
+
+import isEmailValid from '../../utils/isEmailValid';
+import useErrors from '../../hooks/useErrors';
+
 import { Form, ButtonContainer } from './styles';
 
 import FormGroup from '../FormGroup';
@@ -15,31 +18,61 @@ export default function ContactForm({ buttonLabel }) {
   const [phone, setPhone] = useState('');
   const [category, setCategory] = useState('');
 
+  const { setError, removeError, getErrorMessageByFieldName } = useErrors();
+
+  function handleNameChange(event) {
+    setName(event.target.value);
+
+    if (!event.target.value) {
+      setError({ field: 'name', message: 'Nome é obrigatório.' });
+    } else {
+      removeError('name');
+    }
+  }
+
+  function handleEmailChange(event) {
+    setEmail(event.target.value);
+
+    if (event.target.value && !isEmailValid(event.target.value)) {
+      setError({ field: 'email', message: 'Email inválido.' });
+    } else {
+      removeError('email');
+    }
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
-    console.log({
-      name, email, phone, category,
-    });
+    // console.log({
+    //   name, email, phone, category,
+    // });
   }
 
   return (
     <Form
+      noValidate
       action="result"
       onSubmit={handleSubmit}
     >
-      <FormGroup>
+      <FormGroup
+        error={getErrorMessageByFieldName('name')}
+      >
         <Input
+          error={getErrorMessageByFieldName('name')}
           placeholder="Nome"
           value={name}
-          onChange={(event) => setName(event.target.value)}
+          onChange={handleNameChange}
         />
       </FormGroup>
 
-      <FormGroup>
+      <FormGroup
+        error={getErrorMessageByFieldName('email')}
+      >
         <Input
+          type="email"
+          error={getErrorMessageByFieldName('email')}
           placeholder="E-mail"
           value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={handleEmailChange}
         />
 
       </FormGroup>
